@@ -159,7 +159,9 @@ data class EmployeeLocationState(
     val lastUpdated: String = "10:45 AM",
     val status: LocationStateStatus = LocationStateStatus.LIVE,
     val territory: String = "North Zone",
-    val currentTask: String = "Doctor Clinic Visit"
+    val currentTask: String = "Doctor Clinic Visit",
+    val distanceKm: Double = 42.5,
+    val attendanceStatus: String = "Present (Selfie Verified)"
 )
 
 enum class LocationStateStatus {

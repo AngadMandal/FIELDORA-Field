@@ -108,9 +108,11 @@ class FieldoraViewModel : ViewModel() {
 
     private val _employeeLocations = MutableStateFlow(
         listOf(
-            EmployeeLocationState("emp_01", "Rahul Sharma", 28.6139, 77.2090, "10:45 AM", LocationStateStatus.LIVE, "North Zone", "Doctor Clinic Visit"),
-            EmployeeLocationState("emp_02", "Priya Singh", 28.5355, 77.3910, "10:30 AM", LocationStateStatus.LIVE, "South Zone", "Pharmacy Store Check"),
-            EmployeeLocationState("emp_03", "Amit Kumar", 28.7041, 77.1025, "09:15 AM", LocationStateStatus.RECENT, "Central Zone", "Retailer Pitch")
+            EmployeeLocationState("emp_01", "Rahul Sharma", 28.6139, 77.2090, "10:45 AM", LocationStateStatus.LIVE, "North Zone", "Doctor Clinic Visit", 42.5, "Present (Selfie Verified)"),
+            EmployeeLocationState("emp_02", "Priya Singh", 28.5355, 77.3910, "10:30 AM", LocationStateStatus.LIVE, "South Zone", "Pharmacy Store Check", 38.1, "Present (Selfie Verified)"),
+            EmployeeLocationState("emp_03", "Amit Kumar", 28.7041, 77.1025, "09:15 AM", LocationStateStatus.RECENT, "Central Zone", "Retailer Pitch", 29.4, "Present (Selfie Verified)"),
+            EmployeeLocationState("emp_04", "Neha Gupta", 28.5982, 77.0421, "11:00 AM", LocationStateStatus.LIVE, "West Zone", "Hospital Meeting", 51.2, "Present (Selfie Verified)"),
+            EmployeeLocationState("emp_05", "Vikram Malhotra", 28.4595, 77.0266, "08:30 AM", LocationStateStatus.OFFLINE, "Gurugram Zone", "Field Campaign", 14.0, "Absent / Offline")
         )
     )
     val employeeLocations: StateFlow<List<EmployeeLocationState>> = _employeeLocations.asStateFlow()

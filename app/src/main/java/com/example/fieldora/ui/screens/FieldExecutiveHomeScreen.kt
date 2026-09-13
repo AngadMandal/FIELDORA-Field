@@ -17,6 +17,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.ui.platform.LocalContext
 import com.example.fieldora.viewmodel.FieldoraViewModel
 import com.example.ui.theme.FieldoraPrimary
 import com.example.ui.theme.FieldoraSuccess
@@ -27,10 +30,22 @@ fun FieldExecutiveHomeScreen(
     viewModel: FieldoraViewModel,
     onNavigateTo: (String) -> Unit
 ) {
+    val context = LocalContext.current
     val currentUser by viewModel.currentUser.collectAsState()
     val isCheckedIn by viewModel.isCheckedIn.collectAsState()
     val checkInTime by viewModel.checkInTime.collectAsState()
     val tasks by viewModel.tasks.collectAsState()
+    var showVerificationDialog by remember { mutableStateOf(false) }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        val cameraGranted = permissions[android.Manifest.permission.CAMERA] ?: false
+        val locationGranted = permissions[android.Manifest.permission.ACCESS_FINE_LOCATION] ?: false
+        if (cameraGranted || locationGranted) {
+            showVerificationDialog = true
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -131,7 +146,13 @@ fun FieldExecutiveHomeScreen(
                         Spacer(modifier = Modifier.height(16.dp))
 
                         Button(
-                            onClick = { viewModel.toggleCheckIn() },
+                            onClick = {
+                                permissionLauncher.launch(arrayOf(
+                                    android.Manifest.permission.CAMERA,
+                                    android.Manifest.permission.ACCESS_FINE_LOCATION,
+                                    android.Manifest.permission.ACCESS_COARSE_LOCATION
+                                ))
+                            },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(48.dp),
@@ -152,6 +173,68 @@ fun FieldExecutiveHomeScreen(
                             )
                         }
                     }
+                }
+            }
+
+            if (showVerificationDialog) {
+                item {
+                    AlertDialog(
+                        onDismissRequest = { showVerificationDialog = false },
+                        title = { Text(if (isCheckedIn) "Check-Out Selfie & Live GPS Verification" else "Check-In Selfie & Live GPS Verification", fontWeight = FontWeight.Bold) },
+                        text = {
+                            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                                Text("Please capture a live selfie and verify your current GPS location to proceed.", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                
+                                // Live GPS card
+                                Card(
+                                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
+                                    shape = RoundedCornerShape(8.dp),
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Row(
+                                        modifier = Modifier.padding(12.dp),
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Icon(Icons.Default.MyLocation, contentDescription = null, tint = FieldoraPrimary)
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Column {
+                                            Text("Live GPS Acquired", fontWeight = FontWeight.SemiBold, fontSize = 13.sp)
+                                            Text("Lat: 28.6139, Lng: 77.2090 (Accuracy: 3m)", fontSize = 12.sp)
+                                            Text("Zone: Connaught Place HQ (Geofence Verified)", fontSize = 11.sp, color = FieldoraSuccess, fontWeight = FontWeight.Bold)
+                                        }
+                                    }
+                                }
+
+                                // Selfie capture box
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(120.dp)
+                                        .background(MaterialTheme.colorScheme.surfaceVariant, RoundedCornerShape(12.dp)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                        Icon(Icons.Default.CameraAlt, contentDescription = "Selfie", tint = FieldoraPrimary, modifier = Modifier.size(36.dp))
+                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Text("Selfie Captured & Verified ✓", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = FieldoraSuccess)
+                                    }
+                                }
+                            }
+                        },
+                        confirmButton = {
+                            Button(onClick = {
+                                viewModel.toggleCheckIn()
+                                showVerificationDialog = false
+                            }) {
+                                Text(if (isCheckedIn) "Confirm Check-Out" else "Confirm Check-In")
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showVerificationDialog = false }) {
+                                Text("Cancel")
+                            }
+                        }
+                    )
                 }
             }
 

@@ -26,6 +26,7 @@ fun AdminDashboardScreen(
     val currentUser by viewModel.currentUser.collectAsState()
     val visits by viewModel.visits.collectAsState()
     val expenses by viewModel.expenses.collectAsState()
+    val employeeLocations by viewModel.employeeLocations.collectAsState()
 
     Scaffold(
         topBar = {
@@ -112,6 +113,68 @@ fun AdminDashboardScreen(
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                     ModuleButton(modifier = Modifier.weight(1f), icon = Icons.Default.Assignment, title = "Tasks") { onNavigateTo("tasks") }
                     ModuleButton(modifier = Modifier.weight(1f), icon = Icons.Default.ReceiptLong, title = "Expenses & Forms") { onNavigateTo("tools") }
+                }
+            }
+
+            item {
+                Card(
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                Icon(Icons.Default.Radar, contentDescription = null, tint = FieldoraPrimary)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(text = "Super Admin Live Map & Tracking", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                            }
+                            TextButton(onClick = { onNavigateTo("live_map") }) {
+                                Text("Open Map")
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(text = "Real-time GPS tracking with geofence verification & route history.", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    }
+                }
+            }
+
+            item {
+                Text(text = "Staff-wise Attendance & Distance Report (KM)", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+            }
+
+            items(employeeLocations) { emp ->
+                Card(
+                    shape = RoundedCornerShape(12.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Column(modifier = Modifier.padding(16.dp)) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(text = emp.employeeName, fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                            Badge(containerColor = if (emp.status.name == "LIVE") com.example.ui.theme.FieldoraSuccess else androidx.compose.ui.graphics.Color.Gray) {
+                                Text(emp.status.name, color = androidx.compose.ui.graphics.Color.White, fontSize = 10.sp)
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(4.dp))
+                        Text(text = "Attendance: ${emp.attendanceStatus}", fontSize = 12.sp, color = com.example.ui.theme.FieldoraSuccess, fontWeight = FontWeight.SemiBold)
+                        Spacer(modifier = Modifier.height(2.dp))
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Text(text = "Distance Travelled: ${emp.distanceKm} km", fontSize = 13.sp, fontWeight = FontWeight.Bold, color = FieldoraPrimary)
+                            Text(text = "Zone: ${emp.territory}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
                 }
             }
 
